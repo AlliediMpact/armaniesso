@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { products } from '@/lib/products';
+import { categories, products } from '@/lib/products';
 import { useCart } from '@/lib/cart-context';
-import { Button } from '../ui/Button';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingCart, Check } from 'lucide-react';
+import { formatZar } from '@/lib/utils';
 
 export const StoreProductDetailPage: React.FC = () => {
   const params = useParams();
@@ -18,6 +18,9 @@ export const StoreProductDetailPage: React.FC = () => {
   const product = products.find((p) => p.id === productId);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const categoryLabel = product
+    ? categories.find((category) => category.id === product.category)?.name ?? product.category
+    : '';
 
   if (!product) {
     return (
@@ -63,22 +66,19 @@ export const StoreProductDetailPage: React.FC = () => {
           className="grid md:grid-cols-2 gap-12"
         >
           {/* Image */}
-          <div className="bg-dark-card border border-dark-border rounded-xl p-8 h-96 flex items-center justify-center">
-            <div className="text-center">
-              <svg
-                className="w-32 h-32 mx-auto mb-4 text-orange"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <p className="text-gray-400">{product.name}</p>
+          <div className="bg-dark-card border border-dark-border rounded-xl overflow-hidden min-h-[26rem] flex items-stretch justify-center">
+            <div className="relative w-full">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="h-full min-h-[26rem] w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/70 via-transparent to-transparent" />
+              {product.isOnSale && (
+                <div className="absolute top-4 left-4 bg-orange text-dark-bg px-4 py-1 rounded-full text-sm font-bold">
+                  Sale
+                </div>
+              )}
             </div>
           </div>
 
@@ -92,7 +92,7 @@ export const StoreProductDetailPage: React.FC = () => {
             {/* Category & Title */}
             <div>
               <p className="text-sm text-orange font-semibold uppercase tracking-wider mb-2">
-                {product.category.replace('_', ' ')}
+                {categoryLabel}
               </p>
               <h1 className="text-4xl font-bold font-display text-white mb-2">
                 {product.name}
@@ -119,12 +119,10 @@ export const StoreProductDetailPage: React.FC = () => {
             <div className="space-y-2">
               <p className="text-sm text-gray-400">Price</p>
               <div className="flex items-center gap-3">
-                <span className="text-4xl font-bold text-orange">
-                  R{product.price}
-                </span>
+                <span className="text-4xl font-bold text-orange">{formatZar(product.price)}</span>
                 {product.originalPrice && (
                   <span className="text-xl text-gray-400 line-through">
-                    R{product.originalPrice}
+                    {formatZar(product.originalPrice)}
                   </span>
                 )}
               </div>

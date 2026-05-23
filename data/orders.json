@@ -1,0 +1,53 @@
+[
+  {
+    "orderId": "ARE-1779572632431",
+    "reference": "test_ref_1779572632054",
+    "customer": {
+      "email": "test@example.com"
+    },
+    "items": [
+      {
+        "id": "p1",
+        "name": "Sample"
+      }
+    ],
+    "total": 99.98,
+    "status": "paid",
+    "createdAt": "2026-05-23T21:43:52.521Z",
+    "payment": {
+      "processor": "paystack",
+      "data": {
+        "reference": "test_ref_1779572632054",
+        "status": "success",
+        "amount": 9998
+      }
+    }
+  },
+  {
+    "orderId": "ARE-1779573555741",
+    "customer": {
+      "name": "Jacky Mngomezulu",
+      "email": "jackymngomezulu@gmail.com",
+      "phone": "+27653530993",
+      "address": "3182 Protea glen",
+      "city": "Soweto",
+      "zipcode": "1818"
+    },
+    "items": [
+      {
+        "id": "100-one-sided-business-cards-350gsm",
+        "name": "100 One-Sided Business Cards (350gsm)",
+        "description": "Simple one-sided business cards on premium 350gsm stock.",
+        "price": 250,
+        "category": "stationery",
+        "image": "https://etooprinters.co.za/wp-content/uploads/2024/08/POCKETSIZE-3-1-800x800.png",
+        "printSize": "350gsm",
+        "quantity": 1
+      }
+    ],
+    "total": 250,
+    "status": "pending",
+    "createdAt": "2026-05-23T21:59:16.120Z",
+    "payment": null
+  }
+]

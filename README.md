@@ -89,3 +89,46 @@ This project uses modern web technologies:
 ---
 
 ## 📁 Project Structure
+
+## Payments, Webhooks, and Email Setup
+
+Create a `.env.local` file with the following values:
+
+```env
+# Paystack
+PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
+PAYSTACK_CALLBACK_URL=http://localhost:3000/order-confirmation
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# SMTP (Nodemailer)
+SMTP_HOST=smtp.yourprovider.com
+SMTP_PORT=587
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+EMAIL_FROM=no-reply@armaniesso.co.za
+```
+
+### Webhook Verification (Paystack)
+
+The endpoint `POST /api/paystack/webhook`:
+
+- Verifies `x-paystack-signature` using HMAC SHA512 and your `PAYSTACK_SECRET_KEY`.
+- Marks matched orders as `paid` on `charge.success`/`charge.completed`.
+- Marks matched orders as `cancelled` on `charge.failed`/`charge.abandoned`.
+- Sends payment confirmation email when customer email is available.
+
+### Local Webhook Test (Dev Server Running)
+
+```powershell
+$env:PAYSTACK_SECRET_KEY="sk_test_xxxxxxxxxxxxxxxxxxxxx"
+$env:APP_URL="http://localhost:3000"
+node scripts/test-paystack-webhook-http.js
+```
+
+### EFT Email Notifications
+
+When `POST /api/eft-order` is called:
+
+- Order is persisted to `data/orders.json`.
+- EFT instructions are emailed via Nodemailer (when SMTP env vars are configured).
+

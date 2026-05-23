@@ -9,6 +9,14 @@ export function cn(...inputs: (string | undefined | null | false)[]): string {
     .join(' ');
 }
 
+export function formatZar(value: number): string {
+  const wholeRand = Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  return `R${wholeRand},00`;
+}
+
 export const whatsappLink = 'https://wa.me/27615436379';
 export const businessName = 'Armani Esso';
 export const businessPhone = '+27 61 543 6379';

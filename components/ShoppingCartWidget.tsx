@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Plus, Minus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
-import { Button } from './ui/Button';
+import { formatZar } from '@/lib/utils';
 
 export const ShoppingCartWidget: React.FC = () => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, getTotalItems } =
@@ -71,7 +71,7 @@ export const ShoppingCartWidget: React.FC = () => {
                       <p className="text-sm font-semibold text-white">
                         {item.name}
                       </p>
-                      <p className="text-xs text-gray-400">R{item.price}</p>
+                      <p className="text-xs text-gray-400">{formatZar(item.price)}</p>
                     </div>
 
                     <div className="flex items-center gap-1 bg-dark-border rounded">
@@ -111,7 +111,7 @@ export const ShoppingCartWidget: React.FC = () => {
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-gray-400">Total:</span>
                   <span className="text-xl font-bold text-orange">
-                    R{getTotalPrice().toFixed(2)}
+                    {formatZar(getTotalPrice())}
                   </span>
                 </div>
               </div>

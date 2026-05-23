@@ -88,10 +88,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     return items.reduce((total, item) => total + item.quantity, 0);
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <CartContext.Provider
       value={{

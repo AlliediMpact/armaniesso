@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { saveOrder } from '@/lib/orders';
+import { sendEftInstructionsEmail } from '@/lib/mailer';
 
 interface EFTOrderRequest {
   customer: {
@@ -49,13 +51,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       timestamp: new Date().toISOString(),
     });
 
-    // Send confirmation email (in production, integrate with email service)
-    // await sendOrderConfirmationEmail({
-    //   to: body.customer.email,
-    //   orderId,
-    //   bankDetails,
-    //   total: body.total,
-    // });
+    // Persist order to local data store for staging/dev
+    try {
+      saveOrder({ orderId, customer: body.customer, items: body.items, total: body.total });
+    } catch (err) {
+      console.error('Failed saving EFT order:', err);
+    }
+
+    // Send EFT instructions email if SMTP is configured.
+    try {
+      await sendEftInstructionsEmail({
+        to: body.customer.email,
+        customerName: body.customer.name,
+        orderId,
+        total: body.total,
+        bankDetails,
+      });
+    } catch (err) {
+      console.error('Failed sending EFT instructions email:', err);
+    }
 
     return NextResponse.json({
       success: true,
