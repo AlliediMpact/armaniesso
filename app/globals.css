@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0B0B0B;
+  color: #FFFFFF;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0B0B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF8C00;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FFB84D;
+}
+
+/* Selection Color */
+::selection {
+  background-color: #FF8C00;
+  color: #0B0B0B;
+}
+
+/* Text Selection */
+::-moz-selection {
+  background-color: #FF8C00;
+  color: #0B0B0B;
+}
+
+/* Global Animations */
+.animate-fade-in-slow {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.animate-slide-up-slow {
+  animation: slideUp 1s ease-out;
+}
+
+/* Links */
+a {
+  transition: all 0.3s ease;
+}
+
+/* Glassmorphism effect */
+.glass-effect {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 140, 0, 0.1);
+}
+
+/* Gradient Text */
+.gradient-orange {
+  background: linear-gradient(135deg, #FF8C00 0%, #FFB84D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium Shadow */
+.shadow-premium {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+/* Hover Glow Effect */
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(255, 140, 0, 0.5);
+}
+
