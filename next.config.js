@@ -8,7 +8,6 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    cacheControl: 'public, max-age=60',
     minimumCacheTTL: 60,
   },
 
@@ -36,7 +35,8 @@ const nextConfig = {
       ],
     },
     {
-      source: '/public/images/:path*',
+      // Files placed in the `public/` folder are served from root, so match `/images/*`
+      source: '/images/:path*',
       headers: [
         {
           key: 'Cache-Control',
