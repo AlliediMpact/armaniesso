@@ -123,10 +123,13 @@ export default function AuthPage() {
                   <label className="block text-sm text-gray-300 mb-1">Phone Number</label>
                   <input
                     type="tel"
+                    required
+                    pattern="[0-9+\-\s()]{10,}"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full rounded-lg border border-dark-border bg-dark-bg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange"
-                    placeholder="Your phone number"
+                    placeholder="Your phone number (e.g. +27 61 543 6379)"
+                    title="Please enter a valid phone number"
                   />
                 </div>
               </>

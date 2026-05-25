@@ -157,8 +157,9 @@ export const Navbar: React.FC = () => {
                     const section = item.href.slice(1); // Remove leading /
                     const element = document.querySelector(section);
                     if (element) {
+                      window.location.hash = section;
                       element.scrollIntoView({ behavior: 'smooth' });
-                      setCurrentHash(section.slice(1));
+                      setCurrentHash(section);
                     }
                   }
                   setIsOpen(false);
@@ -200,16 +201,6 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="md:hidden flex items-center gap-3">
-            <a
-              href="https://wa.me/27615436379"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-dark-border bg-dark-card text-gray-200 transition hover:border-navy/40 hover:text-white"
-              aria-label="Open WhatsApp"
-              title="Open WhatsApp"
-            >
-              <Phone size={14} className="text-navy-light" />
-            </a>
             <button
               onClick={toggleMenu}
               className="text-orange hover:text-orange-light transition-colors"

@@ -190,8 +190,14 @@ export const Pricing: React.FC = () => {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <button
-                      onClick={() => addToCart(product, 1)}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-sm font-semibold text-dark-bg transition hover:bg-orange-light"
+                      onClick={(e) => {
+                        try {
+                          addToCart(product, 1);
+                        } catch (err) {
+                          console.error('Failed to add to cart:', err);
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-sm font-semibold text-dark-bg transition hover:bg-orange-light disabled:opacity-50"
                     >
                       <ShoppingCart size={16} />
                       Add to cart
@@ -199,6 +205,12 @@ export const Pricing: React.FC = () => {
                     <Link
                       href={`/store/${product.id}`}
                       className="inline-flex items-center justify-center gap-2 rounded-xl border border-dark-border px-5 py-3 text-sm font-semibold text-gray-200 transition hover:border-orange hover:text-orange"
+                      onClick={(e) => {
+                        if (!product.id) {
+                          e.preventDefault();
+                          console.error('Product ID missing');
+                        }
+                      }}
                     >
                       View product
                     </Link>

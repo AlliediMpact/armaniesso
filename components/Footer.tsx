@@ -46,7 +46,9 @@ export const Footer: React.FC = () => {
     <footer className="bg-dark-bg border-t border-dark-border">
       {/* Main Footer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 md:grid-cols-4">
+          {/* Mobile: Quick Links (Row 1) and Contact (Row 2) layout */}
+          {/* Desktop: 4-column layout */}
           {/* Brand */}
           <div>
             <div className="flex items-center gap-4 mb-4">
