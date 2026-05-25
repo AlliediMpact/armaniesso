@@ -36,6 +36,9 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const fullName = typeof body?.fullName === 'string' ? body.fullName.trim() : undefined;
   const phone = typeof body?.phone === 'string' ? body.phone.trim() : undefined;
+  const billingAddress = typeof body?.billingAddress === 'string' ? body.billingAddress.trim() : undefined;
+  const billingCity = typeof body?.billingCity === 'string' ? body.billingCity.trim() : undefined;
+  const billingZipcode = typeof body?.billingZipcode === 'string' ? body.billingZipcode.trim() : undefined;
 
   try {
     const profile = await upsertUserProfile({
@@ -43,6 +46,9 @@ export async function PATCH(request: NextRequest) {
       email: decoded.email,
       fullName,
       phone,
+      billingAddress,
+      billingCity,
+      billingZipcode,
     });
 
     return withNoStore(NextResponse.json({ profile }));

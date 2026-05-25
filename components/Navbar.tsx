@@ -151,7 +151,18 @@ export const Navbar: React.FC = () => {
                 href={item.href}
                 className={navLinkClassName(item.href)}
                 aria-current={isActive(item.href) ? 'page' : undefined}
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  if (item.href.startsWith('/#')) {
+                    e.preventDefault();
+                    const section = item.href.slice(1); // Remove leading /
+                    const element = document.querySelector(section);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                      setCurrentHash(section.slice(1));
+                    }
+                  }
+                  setIsOpen(false);
+                }}
               >
                 {item.label}
               </Link>
@@ -224,7 +235,18 @@ export const Navbar: React.FC = () => {
                   href={item.href}
                   className={mobileLinkClassName(item.href)}
                   aria-current={isActive(item.href) ? 'page' : undefined}
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    if (item.href.startsWith('/#')) {
+                      e.preventDefault();
+                      const section = item.href.slice(1); // Remove leading /
+                      const element = document.querySelector(section);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                        setCurrentHash(section.slice(1));
+                      }
+                    }
+                    setIsOpen(false);
+                  }}
                 >
                   {item.label}
                 </Link>

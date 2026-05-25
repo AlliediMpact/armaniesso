@@ -23,8 +23,10 @@ export default function AuthPage() {
 
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
@@ -42,6 +44,11 @@ export default function AuthPage() {
 
     if (!firebaseAuth) {
       setError('Firebase Auth is not configured.');
+      return;
+    }
+
+    if (mode === 'signup' && !agreeTerms) {
+      setError('Please accept the terms and conditions to continue.');
       return;
     }
 
@@ -63,7 +70,10 @@ export default function AuthPage() {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ fullName: fullName.trim() }),
+            body: JSON.stringify({ 
+              fullName: fullName.trim(),
+              phone: phone.trim()
+            }),
           }).catch(() => null);
         }
         router.replace(nextPath);
@@ -98,16 +108,28 @@ export default function AuthPage() {
 
           <form onSubmit={onSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-lg border border-dark-border bg-dark-bg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange"
-                  placeholder="Your name"
-                />
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full rounded-lg border border-dark-border bg-dark-bg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full rounded-lg border border-dark-border bg-dark-bg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange"
+                    placeholder="Your phone number"
+                  />
+                </div>
+              </>
             )}
 
             <div>
@@ -134,6 +156,21 @@ export default function AuthPage() {
                   className="w-full rounded-lg border border-dark-border bg-dark-bg text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange"
                   placeholder="********"
                 />
+              </div>
+            )}
+
+            {mode === 'signup' && (
+              <div className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-1 rounded border border-dark-border bg-dark-bg"
+                />
+                <label htmlFor="terms" className="text-sm text-gray-400">
+                  I agree to the terms and conditions and privacy policy
+                </label>
               </div>
             )}
 

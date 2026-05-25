@@ -203,12 +203,7 @@ export async function sendAdminContactNotificationEmail(contact: {
   message: string;
   receivedAt: string;
 }) {
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
-  if (!adminEmail) {
-    console.warn('ADMIN_EMAIL not configured; notification skipped.');
-    return { sent: false, reason: 'no_admin_email' };
-  }
-
+  const adminEmail = 'support@armaniesso.co.za';
   const template = adminContactNotificationTemplate(contact);
   return sendEmail(adminEmail, template.subject, template.text);
 }

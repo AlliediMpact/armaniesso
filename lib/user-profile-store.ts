@@ -11,6 +11,9 @@ export type UserProfile = {
   email: string;
   fullName?: string;
   phone?: string;
+  billingAddress?: string;
+  billingCity?: string;
+  billingZipcode?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -53,6 +56,9 @@ function normalizeProfile(input: Partial<UserProfile> & { uid: string; email: st
     email: String(input.email || '').toLowerCase(),
     fullName: input.fullName || undefined,
     phone: input.phone || undefined,
+    billingAddress: input.billingAddress || undefined,
+    billingCity: input.billingCity || undefined,
+    billingZipcode: input.billingZipcode || undefined,
     createdAt: input.createdAt || now,
     updatedAt: input.updatedAt || now,
   };
@@ -97,6 +103,9 @@ export async function upsertUserProfile(input: {
   email: string;
   fullName?: string;
   phone?: string;
+  billingAddress?: string;
+  billingCity?: string;
+  billingZipcode?: string;
 }): Promise<UserProfile> {
   const existing = await getUserProfile(input.uid);
   const merged = normalizeProfile({
@@ -104,6 +113,9 @@ export async function upsertUserProfile(input: {
     email: input.email || existing?.email || '',
     fullName: input.fullName ?? existing?.fullName,
     phone: input.phone ?? existing?.phone,
+    billingAddress: input.billingAddress ?? existing?.billingAddress,
+    billingCity: input.billingCity ?? existing?.billingCity,
+    billingZipcode: input.billingZipcode ?? existing?.billingZipcode,
     createdAt: existing?.createdAt,
     updatedAt: new Date().toISOString(),
   });
