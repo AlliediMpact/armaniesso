@@ -8,10 +8,13 @@ interface Blob {
   radius: number;
   vx: number;
   vy: number;
-  color: string;
+  color: [number, number, number];
   targetX: number;
   targetY: number;
 }
+
+const makeRgba = (rgb: [number, number, number], alpha: number) =>
+  `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 
 export const HeroCanvasBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,11 +35,11 @@ export const HeroCanvasBackground: React.FC = () => {
     window.addEventListener('resize', resizeCanvas);
 
     // Warm color palette
-    const colors = [
-      'rgba(255, 140, 0, 0.15)',    // Orange
-      'rgba(255, 107, 53, 0.12)',   // Warm Orange-Red
-      'rgba(255, 184, 77, 0.1)',    // Golden Orange
-      'rgba(59, 130, 246, 0.08)',   // Cool Blue accent
+    const colors: Array<[number, number, number]> = [
+      [255, 140, 0],    // Orange
+      [255, 107, 53],   // Warm Orange-Red
+      [255, 184, 77],   // Golden Orange
+      [59, 130, 246],   // Cool Blue accent
     ];
 
     // Create blobs
@@ -100,9 +103,10 @@ export const HeroCanvasBackground: React.FC = () => {
 
         // Draw blob with glow effect
         const gradient = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.radius);
-        gradient.addColorStop(0, blob.color.replace('0.', '0.3'));
-        gradient.addColorStop(0.5, blob.color);
-        gradient.addColorStop(1, blob.color.replace(')', ', 0)'));
+        const tint = blob.color;
+        gradient.addColorStop(0, makeRgba(tint, 0.28));
+        gradient.addColorStop(0.5, makeRgba(tint, 0.16));
+        gradient.addColorStop(1, makeRgba(tint, 0));
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
