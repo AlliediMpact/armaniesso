@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { ShieldCheck, ShieldOff, Users } from 'lucide-react';
 
 type Order = {
   orderId: string;
@@ -13,6 +14,14 @@ type Order = {
   total: number;
   createdAt: string;
   customer?: { name?: string; email?: string };
+};
+
+type AdminUser = {
+  uid: string;
+  email: string;
+  displayName?: string;
+  customClaims?: Record<string, unknown>;
+  createdAt?: string;
 };
 
 type Stats = {
@@ -26,8 +35,87 @@ export default function AdminDashboardPage() {
   const { user, loading, isAdmin, isConfigured } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, paid: 0, cancelled: 0 });
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [fetching, setFetching] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [error, setError] = useState('');
+  const [userError, setUserError] = useState('');
+  const [showUserManagement, setShowUserManagement] = useState(false);
+  const [promotingUid, setPromotingUid] = useState<string | null>(null);
+  const [demotingUid, setDemotingUid] = useState<string | null>(null);
+
+  const fetchUsers = async () => {
+    if (!user || !isAdmin) return;
+    setLoadingUsers(true);
+    setUserError('');
+    try {
+      const token = await user.getIdToken().catch(() => '');
+      const res = await fetch('/api/admin/users', {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: 'no-store',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed loading users');
+      setUsers(data.users || []);
+    } catch (err: any) {
+      setUserError(err?.message || 'Failed loading users');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const promoteUser = async (uid: string) => {
+    if (!user || !isAdmin) return;
+    setPromotingUid(uid);
+    setUserError('');
+    try {
+      const token = await user.getIdToken().catch(() => '');
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ uid }),
+        cache: 'no-store',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to promote user');
+      await fetchUsers();
+    } catch (err: any) {
+      setUserError(err?.message || 'Failed to promote user');
+    } finally {
+      setPromotingUid(null);
+    }
+  };
+
+  const demoteUser = async (uid: string) => {
+    if (!user || !isAdmin || user.uid === uid) {
+      setUserError('Cannot demote yourself');
+      return;
+    }
+    setDemotingUid(uid);
+    setUserError('');
+    try {
+      const token = await user.getIdToken().catch(() => '');
+      const res = await fetch(`/api/admin/users/${uid}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: 'no-store',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to demote user');
+      await fetchUsers();
+    } catch (err: any) {
+      setUserError(err?.message || 'Failed to demote user');
+    } finally {
+      setDemotingUid(null);
+    }
+  };
 
   const refreshOrders = async () => {
     if (!user || !isAdmin) return;
@@ -178,6 +266,95 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* User Management Section */}
+        <div className="bg-dark-card border border-dark-border rounded-xl overflow-hidden mb-8">
+          <div className="px-5 py-4 border-b border-dark-border flex items-center justify-between cursor-pointer hover:bg-dark-bg/50" onClick={() => { setShowUserManagement(!showUserManagement); if (!showUserManagement && users.length === 0) fetchUsers(); }}>
+            <div className="flex items-center gap-3">
+              <Users size={20} className="text-orange" />
+              <h2 className="text-xl font-semibold text-white">User Management</h2>
+            </div>
+            <span className="text-sm text-gray-400">{users.length} users</span>
+          </div>
+
+          {showUserManagement && (
+            <>
+              {userError && (
+                <div className="m-5 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                  {userError}
+                </div>
+              )}
+              {loadingUsers ? (
+                <div className="p-5 text-gray-400">Loading users...</div>
+              ) : users.length === 0 ? (
+                <div className="p-5 text-gray-400">No users found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-dark-bg/60 text-gray-300 border-t border-dark-border">
+                      <tr>
+                        <th className="text-left px-5 py-3">Email</th>
+                        <th className="text-left px-5 py-3">Name</th>
+                        <th className="text-left px-5 py-3">Status</th>
+                        <th className="text-left px-5 py-3">Created</th>
+                        <th className="text-left px-5 py-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-dark-border">
+                      {users.map((u) => {
+                        const isAdmin = u.customClaims?.admin === true;
+                        return (
+                          <tr key={u.uid}>
+                            <td className="px-5 py-3 text-white font-mono text-xs">{u.email}</td>
+                            <td className="px-5 py-3 text-gray-200">{u.displayName || '-'}</td>
+                            <td className="px-5 py-3">
+                              {isAdmin ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange/20 text-orange text-xs font-semibold">
+                                  <ShieldCheck size={14} />
+                                  Admin
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-600/30 text-gray-300 text-xs">
+                                  <ShieldOff size={14} />
+                                  Customer
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-5 py-3 text-gray-400 text-xs">
+                              {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-'}
+                            </td>
+                            <td className="px-5 py-3">
+                              <div className="flex items-center gap-2">
+                                {isAdmin ? (
+                                  <button
+                                    onClick={() => demoteUser(u.uid)}
+                                    disabled={demotingUid === u.uid || user.uid === u.uid}
+                                    className="text-xs px-3 py-1 rounded bg-red-600/80 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {demotingUid === u.uid ? 'Removing...' : 'Remove Admin'}
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => promoteUser(u.uid)}
+                                    disabled={promotingUid === u.uid}
+                                    className="text-xs px-3 py-1 rounded bg-orange text-dark-bg font-semibold hover:bg-orange/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {promotingUid === u.uid ? 'Promoting...' : 'Make Admin'}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Orders Section */}
         <div className="bg-dark-card border border-dark-border rounded-xl overflow-hidden">
           <div className="px-5 py-4 border-b border-dark-border flex items-center justify-between">
             <h2 className="text-xl font-semibold">Recent Orders</h2>

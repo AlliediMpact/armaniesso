@@ -18,6 +18,7 @@ type AuthContextValue = {
   roleSource: 'firebase-claim' | 'allow-list' | 'none';
   signOutUser: () => Promise<void>;
   isConfigured: boolean;
+  emailVerified: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [firebaseClaimAdmin, setFirebaseClaimAdmin] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const adminEmails = useMemo(() => getAdminEmails(), []);
 
   useEffect(() => {
@@ -48,9 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextUser);
       if (!nextUser) {
         setFirebaseClaimAdmin(false);
+        setEmailVerified(false);
         setLoading(false);
         return;
       }
+
+      setEmailVerified(Boolean(nextUser.emailVerified));
 
       void getIdTokenResult(nextUser)
         .then((result) => {
@@ -86,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         roleSource,
         signOutUser,
         isConfigured: isFirebaseClientConfigured,
+        emailVerified,
       }}
     >
       {children}
