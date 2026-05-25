@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://armaniesso.co.za/sitemap.xml
+Sitemap: https://armaniesso.co.za/sitemap-products.xml
+
+# Disallow admin and private areas
+Disallow: /admin
+Disallow: /_next/
+Disallow: /.env
+Disallow: /api/
+
+# Crawl delay (polite crawling)
+Crawl-delay: 1
+
+# Allow fast crawlers
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1

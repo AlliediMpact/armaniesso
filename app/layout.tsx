@@ -4,6 +4,8 @@ import { Footer } from '@/components/Footer';
 import { CartProvider } from '@/lib/cart-context';
 import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { Preloader } from '@/components/Preloader';
+import { organizationSchema, businessServiceSchema, faqSchema } from '@/lib/schema-markup';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -11,10 +13,23 @@ export const metadata: Metadata = {
   description:
     'Professional printing and branding services for businesses across South Africa. Business cards, flyers, banners, and custom printing solutions.',
   keywords:
-    'printing, branding, business cards, flyers, banners, south africa, custom printing',
+    'printing, branding, business cards, flyers, banners, south africa, custom printing, branded items, lanyards, flags',
   authors: [{ name: 'Armani Esso' }],
   metadataBase: new URL('https://armaniesso.co.za'),
-  robots: 'index, follow',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'googlee17563fd056422ea',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_ZA',
@@ -22,15 +37,18 @@ export const metadata: Metadata = {
     siteName: 'Armani Esso',
     title: 'Armani Esso - Premium Printing & Branding Solutions',
     description:
-      'Professional printing and branding services for businesses across South Africa.',
+      'Professional printing and branding services for businesses across South Africa. Quality printing, design, and branding solutions.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Armani Esso',
+        alt: 'Armani Esso - Premium Printing & Branding',
       },
     ],
+  },
+  alternates: {
+    canonical: 'https://armaniesso.co.za',
   },
 };
 
@@ -58,8 +76,23 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <link rel="icon" href="/logo.svg" />
+        
+        {/* JSON-LD Schema Markup for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(businessServiceSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </head>
       <body className="bg-dark-bg text-white transition-colors duration-300">
+        <Preloader />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

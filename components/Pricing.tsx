@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Sparkles, ShoppingCart, Star } from 'lucide-react';
 import { Card } from './ui/Card';
@@ -140,16 +141,13 @@ export const Pricing: React.FC = () => {
                 className="overflow-hidden border-dark-border bg-dark-card/90 p-0"
               >
                 <div className="relative h-52 bg-dark-bg overflow-hidden">
-                  <img
+                  <Image
                     src={product.image}
                     alt={product.name}
+                    fill
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
-                    onError={(event) => {
-                      const img = event.currentTarget as HTMLImageElement;
-                      img.onerror = null;
-                      img.src = '/placeholder.svg';
-                    }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent opacity-80" />
                   <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-navy/25 bg-navy/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-navy-light">

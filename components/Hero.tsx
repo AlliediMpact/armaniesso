@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Sparkles, ScanLine, BadgeCheck, Boxes, Sparkles as SparkleIcon } from 'lucide-react';
 import { Button } from './ui/Button';
+import { HeroCanvasBackground } from './HeroCanvasBackground';
 
 export const Hero: React.FC = () => {
   const containerVariants = {
@@ -43,57 +44,14 @@ export const Hero: React.FC = () => {
 
   return (
     <section className="relative min-h-screen pt-8 md:pt-10 bg-gradient-dark flex items-center overflow-hidden">
-      {/* Animated Background Video Simulation */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,140,0,0.16),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_26%)]" />
-      </div>
+      {/* Canvas-based Animated Blob Background */}
+      <HeroCanvasBackground />
       
-      {/* Animated Gradient Layers */}
-      <motion.div
-        className="absolute inset-0 opacity-30"
-        animate={{
-          background: [
-            'radial-gradient(circle at 20% 50%, rgba(255,140,0,0.15) 0%, transparent 50%)',
-            'radial-gradient(circle at 80% 50%, rgba(59,130,246,0.12) 0%, transparent 50%)',
-            'radial-gradient(circle at 50% 50%, rgba(255,140,0,0.1) 0%, transparent 50%)',
-            'radial-gradient(circle at 20% 50%, rgba(255,140,0,0.15) 0%, transparent 50%)',
-          ],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+      {/* Static Background Gradient Base */}
+      <div className="absolute inset-0 bg-gradient-to-br from-dark-bg/50 via-dark-card/30 to-dark-bg/70" />
       
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:80px_80px]" />
-      
-      {/* Floating Light Orbs */}
-      <motion.div
-        className="absolute top-20 left-10 w-72 h-72 bg-orange/20 rounded-full filter blur-3xl"
-        animate={{
-          y: [0, 30, 0],
-          x: [0, -20, 0],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl"
-        animate={{
-          y: [0, -30, 0],
-          x: [0, 20, 0],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:80px_80px]" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20 relative z-10">
         <motion.div

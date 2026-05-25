@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, Moon, Phone, Sun, X } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -139,7 +140,14 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-14 md:h-16">
           <Link href="/" className="flex-shrink-0">
             <div className="flex items-center">
-              <img src="/logo.png" alt="Armani Esso logo" className="w-12 h-12 sm:w-14 sm:h-14 object-contain" />
+              <Image 
+                src="/logo.png" 
+                alt="Armani Esso logo" 
+                width={56} 
+                height={56}
+                className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+                priority
+              />
               <span className="sr-only">Armani Esso</span>
             </div>
           </Link>
