@@ -7,14 +7,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'dark-bg': '#0B0B0B',
-        'dark-card': '#1A1A1A',
-        'dark-border': '#2A2A2A',
-        'navy': '#001F5C',
-        'navy-light': '#1E3A8A',
-        'orange': '#FF8C00',
-        'orange-light': '#FFB84D',
-        'orange-dark': '#E67E00',
+        'dark-bg': 'rgb(var(--color-bg) / <alpha-value>)',
+        'dark-card': 'rgb(var(--color-card) / <alpha-value>)',
+        'dark-border': 'rgb(var(--color-border) / <alpha-value>)',
+        'navy': 'rgb(var(--color-navy) / <alpha-value>)',
+        'navy-light': 'rgb(var(--color-navy-light) / <alpha-value>)',
+        'orange': 'rgb(var(--color-orange) / <alpha-value>)',
+        'orange-light': 'rgb(var(--color-orange-light) / <alpha-value>)',
+        'orange-dark': 'rgb(var(--color-orange-dark) / <alpha-value>)',
       },
       fontFamily: {
         'sans': ['Inter', 'system-ui', 'sans-serif'],
@@ -43,8 +43,8 @@ module.exports = {
         },
       },
       backgroundImage: {
-        'gradient-orange': 'linear-gradient(135deg, #FF8C00 0%, #FFB84D 100%)',
-        'gradient-dark': 'linear-gradient(135deg, #0B0B0B 0%, #1A1A1A 100%)',
+        'gradient-orange': 'linear-gradient(135deg, rgb(var(--color-orange)) 0%, rgb(var(--color-orange-light)) 100%)',
+        'gradient-dark': 'linear-gradient(135deg, rgb(var(--color-bg)) 0%, rgb(var(--color-card)) 100%)',
       },
     },
   },

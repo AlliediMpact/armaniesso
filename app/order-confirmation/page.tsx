@@ -1,12 +1,36 @@
+'use client';
+
+import { useEffect } from 'react';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Order Confirmed - Armani Esso Store',
-  description: 'Your order has been successfully confirmed. Thank you for your purchase.',
-};
-
 export default function OrderConfirmationPage() {
+  useEffect(() => {
+    (async () => {
+      try {
+        const flag = localStorage.getItem('signOutAfterPurchase');
+        if (!flag) return;
+        // Attempt revoke + sign out
+        const client = await import('@/lib/firebase-client');
+        const firebaseAuth = client.firebaseAuth;
+        if (firebaseAuth && firebaseAuth.currentUser) {
+          const { getIdToken, signOut } = await import('firebase/auth');
+          const token = await getIdToken(firebaseAuth.currentUser, true).catch(() => null);
+          if (token) {
+            await fetch('/api/auth/revoke', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+            }).catch(() => null);
+          }
+          await signOut(firebaseAuth).catch(() => null);
+        }
+        localStorage.removeItem('signOutAfterPurchase');
+      } catch (_e) {
+        // ignore
+      }
+    })();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-dark pt-20 pb-20 flex items-center">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

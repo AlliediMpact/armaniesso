@@ -7,27 +7,27 @@ import { Card } from './ui/Card';
 
 const reasons = [
   {
-    title: 'High Quality',
+    title: 'Clean Print Quality',
     description:
-      'Premium materials and expert craftsmanship ensure exceptional results every time.',
+      'We pay attention to stock, finish, and file setup so the printed result looks sharp.',
     icon: CheckCircle2,
   },
   {
     title: 'Fast Turnaround',
     description:
-      'Quick delivery without compromising on quality. We meet your deadlines consistently.',
+      'Quick delivery without skipping the checks that keep your order looking professional.',
     icon: Zap,
   },
   {
-    title: 'Affordable Pricing',
+    title: 'Practical Pricing',
     description:
-      'Competitive rates that offer exceptional value for your investment.',
+      'Clear pricing that helps small businesses plan orders without guesswork.',
     icon: DollarSign,
   },
   {
-    title: 'Professional Service',
+    title: 'Professional Support',
     description:
-      'Dedicated team committed to understanding and exceeding your expectations.',
+      'You get direct help on artwork, product choice, and the next best step for your job.',
     icon: Users,
   },
 ];
@@ -67,7 +67,7 @@ export const WhyChooseUs: React.FC = () => {
             Why Choose <span className="gradient-orange">Armani Esso?</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            We're committed to delivering excellence in every project.
+            We help businesses move from idea to print with fewer back-and-forth revisions and a cleaner final result.
           </p>
         </motion.div>
 
@@ -85,7 +85,7 @@ export const WhyChooseUs: React.FC = () => {
               <motion.div key={index} variants={itemVariants}>
                 <Card hoverable className="text-center">
                   <div className="flex flex-col items-center h-full">
-                    <div className="mb-4 p-3 bg-orange/10 rounded-full">
+                    <div className="mb-4 rounded-full border border-navy/20 bg-navy/10 p-3">
                       <Icon className="text-orange" size={32} />
                     </div>
                     <h3 className="text-xl font-bold font-display mb-3">

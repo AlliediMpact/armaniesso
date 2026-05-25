@@ -1,4 +1,11 @@
 // Product catalog for Armani Esso store
+export interface ProductVariant {
+  id: string;
+  name: string;
+  value: string;
+  sku?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -9,6 +16,13 @@ export interface Product {
   image: string;
   printSize: string;
   isOnSale?: boolean;
+  sku?: string;
+  variants?: ProductVariant[]; // e.g., [{ id: 'color', name: 'Color', value: 'Red', sku: 'RED-1' }]
+  customization?: {
+    allowText?: boolean;
+    allowDesign?: boolean;
+    maxCharacters?: number;
+  };
 }
 
 export const categories = [

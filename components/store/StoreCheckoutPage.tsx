@@ -26,6 +26,7 @@ export const StoreCheckoutPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [signOutAfter, setSignOutAfter] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,6 +76,12 @@ export const StoreCheckoutPage: React.FC = () => {
       const data = await response.json();
 
       if (data.authorizationUrl) {
+        // Persist user's sign-out choice for post-payment callback handling
+        if (signOutAfter) {
+          try {
+            localStorage.setItem('signOutAfterPurchase', '1');
+          } catch (_e) {}
+        }
         // Redirect to PayStack payment page
         window.location.href = data.authorizationUrl;
       } else {
@@ -109,6 +116,29 @@ export const StoreCheckoutPage: React.FC = () => {
       if (response.ok) {
         setSuccess(true);
         clearCart();
+
+        // If user opted to sign out after purchase, attempt to revoke and sign out.
+        if (signOutAfter) {
+          try {
+            const client = await import('@/lib/firebase-client');
+            const firebaseAuth = client.firebaseAuth;
+            if (firebaseAuth && firebaseAuth.currentUser) {
+              const { getIdToken, signOut } = await import('firebase/auth');
+              const token = await getIdToken(firebaseAuth.currentUser, true).catch(() => null);
+              if (token) {
+                await fetch('/api/auth/revoke', {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${token}` },
+                }).catch(() => null);
+              }
+              // Sign out locally
+              await signOut(firebaseAuth).catch(() => null);
+            }
+          } catch (_e) {
+            // best-effort; continue
+          }
+        }
+
         setTimeout(() => {
           router.push('/order-confirmation');
         }, 3000);
@@ -348,6 +378,20 @@ export const StoreCheckoutPage: React.FC = () => {
                       Bank transfer - we'll send you bank details after order
                     </p>
                   </div>
+                </label>
+              </div>
+
+              {/* Sign-out option */}
+              <div className="mt-4 mb-6 flex items-center gap-3">
+                <input
+                  id="signOutAfter"
+                  type="checkbox"
+                  checked={signOutAfter}
+                  onChange={(e) => setSignOutAfter(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="signOutAfter" className="text-sm text-gray-300">
+                  Sign out of my account after this purchase
                 </label>
               </div>
 

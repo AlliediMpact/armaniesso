@@ -1,28 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-interface ContactRequest {
-  name: string;
-  phone: string;
-  message: string;
-}
-
-// Validate the request body
-function validateContactRequest(body: unknown): body is ContactRequest {
-  if (typeof body !== 'object' || body === null) {
-    return false;
-  }
-
-  const obj = body as Record<string, unknown>;
-
-  return (
-    typeof obj.name === 'string' &&
-    obj.name.trim().length > 0 &&
-    typeof obj.phone === 'string' &&
-    obj.phone.trim().length > 0 &&
-    typeof obj.message === 'string' &&
-    obj.message.trim().length >= 10
-  );
-}
+import { sendContactConfirmationEmail, sendAdminContactNotificationEmail } from '@/lib/mailer';
+import { ContactFormSchema, validateRequest, errorResponse } from '@/lib/validation-schemas';
+import { getFirestore } from 'firebase-admin/firestore';
+import { getFirebaseAdminApp } from '@/lib/firebase-admin';
 
 /**
  * POST /api/contact
@@ -30,45 +10,59 @@ function validateContactRequest(body: unknown): body is ContactRequest {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Only allow POST requests
-    if (request.method !== 'POST') {
-      return NextResponse.json(
-        { error: 'Method not allowed' },
-        { status: 405 }
-      );
-    }
-
-    // Parse the request body
     const body = await request.json();
+    const validation = validateRequest(ContactFormSchema, body);
 
-    // Validate the request
-    if (!validateContactRequest(body)) {
-      return NextResponse.json(
-        {
-          error: 'Invalid request. Please provide name, phone, and message (min 10 characters).',
-        },
-        { status: 400 }
-      );
+    if (!validation.valid) {
+      return NextResponse.json(errorResponse(validation.errors), { status: 400 });
     }
 
-    const { name, phone, message } = body;
+    const { name, phone, email, message } = validation.data;
+    const receivedAt = new Date().toISOString();
 
-    // Here you would typically:
-    // 1. Save to a database
-    // 2. Send an email notification
-    // 3. Integrate with a CRM or email service
+    // Send confirmation email to customer (if email provided)
+    if (email) {
+      try {
+        await sendContactConfirmationEmail({
+          to: email,
+          name,
+        });
+      } catch (err) {
+        console.error('Failed to send confirmation email:', err);
+      }
+    }
 
-    // For now, we'll just log and return success
-    console.log('Contact form submission:', {
-      name,
-      phone,
-      message,
-      timestamp: new Date().toISOString(),
-    });
+    // Send notification to admin
+    try {
+      await sendAdminContactNotificationEmail({
+        name,
+        phone,
+        email,
+        message,
+        receivedAt,
+      });
+    } catch (err) {
+      console.error('Failed to send admin notification:', err);
+    }
 
-    // TODO: Implement email sending service
-    // Example with a service like SendGrid, Nodemailer, or AWS SES:
-    // await sendEmailNotification({ name, phone, message });
+    // Save to Firestore for CRM/follow-up
+    try {
+      const app = getFirebaseAdminApp();
+      if (app) {
+        const db = getFirestore(app);
+        await db.collection('inquiries').add({
+          name,
+          phone,
+          email: email || null,
+          message,
+          createdAt: new Date(),
+          status: 'new',
+          responded: false,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save inquiry:', err);
+    }
 
     return NextResponse.json(
       {
@@ -77,14 +71,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         data: {
           name,
           phone,
-          receivedAt: new Date().toISOString(),
+          receivedAt,
         },
       },
       { status: 200 }
     );
   } catch (error) {
     console.error('Contact form error:', error);
-
     return NextResponse.json(
       {
         error: 'Failed to process your request. Please try again later.',

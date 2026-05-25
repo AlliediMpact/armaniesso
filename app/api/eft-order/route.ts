@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveOrder } from '@/lib/orders';
+import { saveOrder } from '@/lib/order-store';
+import { calculateCartTotal } from '@/lib/utils';
 import { sendEftInstructionsEmail } from '@/lib/mailer';
+import { checkRateLimit, getRequestClientId } from '@/lib/rate-limit';
 
 interface EFTOrderRequest {
   customer: {
@@ -21,6 +23,12 @@ interface EFTOrderRequest {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const clientId = getRequestClientId(request.headers);
+    const rate = checkRateLimit(`eft-order:${clientId}`, 15, 60_000);
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const body: EFTOrderRequest = await request.json();
 
     // Validate required fields
@@ -34,13 +42,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Create order record (in production, save to database)
     const orderId = `ARE-${Date.now()}`;
 
-    // EFT Bank Details (placeholder - update with actual details)
-    const bankDetails = {
-      bankName: 'Armani Esso Finance',
-      accountName: 'Armani Esso Trading',
-      accountNumber: 'XXXX XXXX XXXX XXXX', // Will be provided by user
-      branchCode: 'XXXXX',
-    };
+    // Compute server-side total from items to prevent client tampering
+    const serverTotal = calculateCartTotal(body.items);
+    if (Number(body.total) && Number(body.total) !== serverTotal) {
+      console.warn('EFT order total mismatch; using server-calculated total', {
+        client: body.total,
+        server: serverTotal,
+      });
+    }
+
+    // EFT Bank Details
+    const accounts = [
+      {
+        bankName: 'Nedbank',
+        accountName: 'Armani Esso',
+        accountNumber: '1337348694',
+        accountType: 'Cheque Account',
+      },
+      {
+        bankName: 'Capitec',
+        accountName: 'Armani Esso',
+        accountNumber: '1711564468',
+        accountType: 'Savings Account',
+        linkedCellphone: '081 734 2324',
+      },
+    ];
+    const bankDetails = accounts[0]; // Default to Nedbank, allow selection in future
 
     // Log order (in production, save to database)
     console.log('New EFT Order:', {
@@ -51,12 +78,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       timestamp: new Date().toISOString(),
     });
 
-    // Persist order to local data store for staging/dev
-    try {
-      saveOrder({ orderId, customer: body.customer, items: body.items, total: body.total });
-    } catch (err) {
-      console.error('Failed saving EFT order:', err);
-    }
+    // Persist order and fail fast if persistence fails in strict production mode.
+    await saveOrder({ orderId, customer: body.customer, items: body.items, total: serverTotal });
 
     // Send EFT instructions email if SMTP is configured.
     try {
@@ -64,7 +87,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         to: body.customer.email,
         customerName: body.customer.name,
         orderId,
-        total: body.total,
+        total: serverTotal,
         bankDetails,
       });
     } catch (err) {

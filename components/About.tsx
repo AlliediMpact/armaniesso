@@ -7,18 +7,18 @@ import { Card } from './ui/Card';
 
 const stats = [
   {
-    title: '1000+',
-    description: 'Satisfied Clients',
+    title: 'Print-ready',
+    description: 'Artwork checked before production',
     icon: Users,
   },
   {
-    title: '5000+',
-    description: 'Projects Completed',
+    title: 'Brand-led',
+    description: 'Design support and consistent colour handling',
     icon: Award,
   },
   {
-    title: '8 Years',
-    description: 'Industry Experience',
+    title: 'South Africa',
+    description: 'Orders supported for local businesses and events',
     icon: Globe,
   },
 ];
@@ -63,43 +63,36 @@ export const About: React.FC = () => {
                 About <span className="gradient-orange">Armani Esso</span>
               </h2>
               <p className="text-lg text-gray-300 leading-relaxed mb-4">
-                Founded with a passion for excellence, Armani Esso has been
-                delivering premium printing and branding solutions across South
-                Africa. We believe that exceptional quality and professional
-                service should be accessible to every business, regardless of size.
+                Armani Esso helps South African businesses look organised and ready with
+                print that is practical, polished, and easy to order.
               </p>
               <p className="text-lg text-gray-300 leading-relaxed mb-4">
-                Our commitment to innovation, reliability, and customer
-                satisfaction has made us the preferred choice for businesses
-                seeking to elevate their brand presence through premium print
-                materials.
+                We work with everyday business materials such as cards, flyers, banners,
+                lanyards, flags, and branded accessories so your team can stay visible.
               </p>
               <p className="text-lg text-gray-300 leading-relaxed">
-                Every project we undertake reflects our dedication to turning your
-                vision into reality with meticulous attention to detail and
-                craftsmanship.
+                Every job is guided by the same standard: clean artwork, honest communication,
+                and a final product that looks ready to hand out.
               </p>
             </div>
 
             {/* Key Values */}
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="w-1 bg-gradient-orange rounded-full" />
+                <div className="w-1 rounded-full bg-gradient-to-b from-navy to-orange" />
                 <div>
                   <h4 className="font-bold text-white mb-1">Our Mission</h4>
                   <p className="text-gray-400">
-                    To empower businesses with exceptional branding and printing
-                    solutions that drive growth and leave lasting impressions.
+                    To make professional print support simple, reliable, and easy to launch with.
                   </p>
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="w-1 bg-gradient-orange rounded-full" />
+                <div className="w-1 rounded-full bg-gradient-to-b from-navy to-orange" />
                 <div>
                   <h4 className="font-bold text-white mb-1">Our Vision</h4>
                   <p className="text-gray-400">
-                    To be the leading trusted partner for premium branding and
-                    printing services in South Africa.
+                    To be a trusted print partner for small businesses, events, and growing brands.
                   </p>
                 </div>
               </div>
@@ -119,7 +112,7 @@ export const About: React.FC = () => {
               return (
                 <motion.div key={index} variants={itemVariants}>
                   <Card hoverable className="flex items-start gap-4">
-                    <div className="p-3 bg-orange/10 rounded-lg flex-shrink-0">
+                    <div className="p-3 rounded-lg flex-shrink-0 border border-navy/20 bg-navy/10">
                       <Icon className="text-orange" size={32} />
                     </div>
                     <div>
@@ -136,12 +129,12 @@ export const About: React.FC = () => {
             {/* Trust Badge */}
             <motion.div
               variants={itemVariants}
-              className="bg-dark-card border border-orange/30 rounded-xl p-6 mt-8"
+              className="bg-dark-card border border-navy/30 rounded-xl p-6 mt-8"
             >
               <p className="text-center text-gray-300">
-                <span className="text-orange font-bold">✓ Certified</span>
+                <span className="text-navy-light font-bold">✓ Local South African Support</span>
                 <br />
-                Professional Printing Services Since 2016
+                Based in South Africa, serving businesses nationwide with direct communication and quick responses.
               </p>
             </motion.div>
           </motion.div>

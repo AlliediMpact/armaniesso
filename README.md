@@ -102,11 +102,45 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # SMTP (Nodemailer)
 SMTP_HOST=smtp.yourprovider.com
-SMTP_PORT=587
+SMTP_PORT=465
 SMTP_USER=your_smtp_user
 SMTP_PASS=your_smtp_password
 EMAIL_FROM=no-reply@armaniesso.co.za
+
+# Firebase client config
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=...
+
+# Firebase Admin SDK (server-side token verification)
+FIREBASE_PROJECT_ID=...
+FIREBASE_CLIENT_EMAIL=...
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_USE_FIRESTORE_ORDERS=true
+
+# Dashboard access
+NEXT_PUBLIC_ADMIN_EMAILS=admin@example.com
+ADMIN_EMAILS=admin@example.com
 ```
+
+## Dashboards and Auth
+
+- Customer auth page: `/auth`
+- Client dashboard: `/account`
+- Admin dashboard: `/admin`
+
+`/api/account/orders` and `/api/admin/orders` support Firebase token verification.
+In development, there is a temporary fallback to headers when Firebase Admin credentials are not yet set.
+
+## Order Persistence
+
+- Order writes/reads now use Firestore when Firebase Admin is configured.
+- If Firestore is unavailable, the app falls back to local `data/orders.json` to keep development unblocked.
+- Toggle behavior with `FIREBASE_USE_FIRESTORE_ORDERS`.
 
 ### Webhook Verification (Paystack)
 
@@ -129,6 +163,6 @@ node scripts/test-paystack-webhook-http.js
 
 When `POST /api/eft-order` is called:
 
-- Order is persisted to `data/orders.json`.
+- Order is persisted to Firestore when available, with local `data/orders.json` fallback.
 - EFT instructions are emailed via Nodemailer (when SMTP env vars are configured).
 

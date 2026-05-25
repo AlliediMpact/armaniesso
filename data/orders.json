@@ -14,6 +14,16 @@
     "total": 99.98,
     "status": "paid",
     "createdAt": "2026-05-23T21:43:52.521Z",
+    "updatedAt": "2026-05-23T21:43:52.521Z",
+    "statusHistory": [
+      {
+        "status": "paid",
+        "at": "2026-05-23T21:43:52.521Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
     "payment": {
       "processor": "paystack",
       "data": {
@@ -48,6 +58,238 @@
     "total": 250,
     "status": "pending",
     "createdAt": "2026-05-23T21:59:16.120Z",
+    "updatedAt": "2026-05-23T21:59:16.120Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "at": "2026-05-23T21:59:16.120Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": null
+  },
+  {
+    "orderId": "ARE-1779577926906",
+    "reference": "hexs4l4qtv",
+    "customer": {
+      "email": "test@example.com",
+      "phone": "+27123456789"
+    },
+    "items": [
+      {
+        "id": "p1",
+        "name": "Sample Product",
+        "quantity": 1,
+        "price": 50
+      }
+    ],
+    "total": 50,
+    "status": "paid",
+    "createdAt": "2026-05-23T23:12:06.906Z",
+    "updatedAt": "2026-05-23T23:12:06.906Z",
+    "statusHistory": [
+      {
+        "status": "paid",
+        "at": "2026-05-23T23:12:06.906Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": {
+      "processor": "paystack",
+      "data": {
+        "reference": "hexs4l4qtv",
+        "status": "success",
+        "amount": 5000
+      }
+    }
+  },
+  {
+    "orderId": "ARE-1779577952675",
+    "reference": "4jq6i72lk8",
+    "customer": {
+      "email": "test@example.com",
+      "phone": "+27123456789"
+    },
+    "items": [
+      {
+        "id": "p1",
+        "name": "Sample Product",
+        "quantity": 1,
+        "price": 50
+      }
+    ],
+    "total": 50,
+    "status": "paid",
+    "createdAt": "2026-05-23T23:12:32.675Z",
+    "updatedAt": "2026-05-23T23:12:32.675Z",
+    "statusHistory": [
+      {
+        "status": "paid",
+        "at": "2026-05-23T23:12:32.675Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": {
+      "processor": "paystack",
+      "data": {
+        "reference": "4jq6i72lk8",
+        "status": "success",
+        "amount": 5000
+      }
+    }
+  },
+  {
+    "orderId": "ARE-1779577967450",
+    "reference": "9y0wd42eik",
+    "customer": {
+      "email": "test@example.com",
+      "phone": "+27123456789"
+    },
+    "items": [
+      {
+        "id": "p1",
+        "name": "Sample Product",
+        "quantity": 1,
+        "price": 50
+      }
+    ],
+    "total": 50,
+    "status": "paid",
+    "createdAt": "2026-05-23T23:12:47.450Z",
+    "updatedAt": "2026-05-23T23:12:47.450Z",
+    "statusHistory": [
+      {
+        "status": "paid",
+        "at": "2026-05-23T23:12:47.450Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": {
+      "processor": "paystack",
+      "data": {
+        "reference": "9y0wd42eik",
+        "status": "success",
+        "amount": 5000
+      }
+    }
+  },
+  {
+    "orderId": "ARE-1779624149689",
+    "customer": {
+      "name": "Jacky Mngomezulu",
+      "email": "jackymngomezulu@gmail.com",
+      "phone": "+27653530993",
+      "address": "3182 Protea glen",
+      "city": "Soweto",
+      "zipcode": "1818"
+    },
+    "items": [
+      {
+        "id": "1-x-1m-flags",
+        "name": "1 x 1m Flags",
+        "description": "Compact branded flags for outdoor visibility and event promotions.",
+        "price": 350,
+        "category": "displays",
+        "image": "https://etooprinters.co.za/wp-content/uploads/2024/08/POCKETSIZE-8-800x800.png",
+        "printSize": "1m x 1m",
+        "quantity": 1
+      }
+    ],
+    "total": 350,
+    "status": "pending",
+    "createdAt": "2026-05-24T12:02:30.064Z",
+    "updatedAt": "2026-05-24T12:02:30.064Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "at": "2026-05-24T12:02:30.064Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": null
+  },
+  {
+    "orderId": "ARE-1779624423528",
+    "customer": {
+      "name": "Jacky Mngomezulu",
+      "email": "jackymngomezulu@gmail.com",
+      "phone": "+27653530993",
+      "address": "3182 Protea glen",
+      "city": "Soweto",
+      "zipcode": "1818"
+    },
+    "items": [
+      {
+        "id": "1-x-1m-flags",
+        "name": "1 x 1m Flags",
+        "description": "Compact branded flags for outdoor visibility and event promotions.",
+        "price": 350,
+        "category": "displays",
+        "image": "https://etooprinters.co.za/wp-content/uploads/2024/08/POCKETSIZE-8-800x800.png",
+        "printSize": "1m x 1m",
+        "quantity": 1
+      }
+    ],
+    "total": 350,
+    "status": "pending",
+    "createdAt": "2026-05-24T12:07:03.532Z",
+    "updatedAt": "2026-05-24T12:07:03.532Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "at": "2026-05-24T12:07:03.532Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
+    "payment": null
+  },
+  {
+    "orderId": "ARE-1779698348244",
+    "customer": {
+      "name": "Jacky Mngomezulu",
+      "email": "jackymngomezulu@gmail.com",
+      "phone": "+27653530993",
+      "address": "3182 Protea glen",
+      "city": "Soweto",
+      "zipcode": "1818"
+    },
+    "items": [
+      {
+        "id": "1-x-1m-flags",
+        "name": "1 x 1m Flags",
+        "description": "Compact branded flags for outdoor visibility and event promotions.",
+        "price": 350,
+        "category": "displays",
+        "image": "https://etooprinters.co.za/wp-content/uploads/2024/08/POCKETSIZE-8-800x800.png",
+        "printSize": "1m x 1m",
+        "quantity": 1
+      }
+    ],
+    "total": 350,
+    "status": "pending",
+    "createdAt": "2026-05-25T08:39:08.291Z",
+    "updatedAt": "2026-05-25T08:39:08.291Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "at": "2026-05-25T08:39:08.292Z",
+        "actor": "system",
+        "note": "Order created"
+      }
+    ],
+    "paymentEvents": [],
     "payment": null
   }
 ]

@@ -15,32 +15,32 @@ import { Card } from './ui/Card';
 const services = [
   {
     title: 'Business Cards',
-    description: 'Premium business cards that leave a lasting impression with your clients.',
+    description: 'Premium 350gsm cards with neat finish options for meetings, introductions, and follow-ups.',
     icon: FileText,
   },
   {
     title: 'Flyers & Posters',
-    description: 'Eye-catching promotional materials designed to capture attention and drive results.',
+    description: 'Short-run marketing print for promotions, launches, menus, and event handouts.',
     icon: Printer,
   },
   {
     title: 'Banners & Large Format',
-    description: 'Custom large-format printing for events, retail, and brand visibility.',
+    description: 'Pull-up banners, street banners, and display pieces for retail, events, and trade days.',
     icon: Layout,
   },
   {
     title: 'Branding & Design',
-    description: 'Complete branding solutions including logo design and brand identity packages.',
+    description: 'Artwork cleanup, layout support, and branding assets prepared for clean production.',
     icon: Palette,
   },
   {
-    title: 'Custom Printing',
-    description: 'Bespoke printing solutions tailored to your specific business needs.',
+    title: 'Custom Accessories',
+    description: 'Lanyards, flags, key holders, and other branded items that keep your business visible.',
     icon: Zap,
   },
   {
-    title: 'Quality Assurance',
-    description: 'Every project undergoes rigorous quality checks to ensure perfection.',
+    title: 'Production Checks',
+    description: 'We check artwork, colour, and finishing details before a job leaves the press.',
     icon: Trophy,
   },
 ];
@@ -81,11 +81,11 @@ export const Services: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
-            Our <span className="gradient-orange">Premium Services</span>
+            Services built for <span className="gradient-orange">real orders</span>
           </h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Comprehensive printing and branding solutions designed to elevate your
-            business and make a lasting impact.
+            Practical printing and branding support for businesses that need clean artwork,
+            dependable production, and a polished final result.
           </p>
         </motion.div>
 

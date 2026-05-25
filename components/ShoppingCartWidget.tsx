@@ -7,26 +7,38 @@ import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import { formatZar } from '@/lib/utils';
 
-export const ShoppingCartWidget: React.FC = () => {
+type ShoppingCartWidgetProps = {
+  placement?: 'floating' | 'header';
+};
+
+export const ShoppingCartWidget: React.FC<ShoppingCartWidgetProps> = ({ placement = 'floating' }) => {
   const { items, removeFromCart, updateQuantity, getTotalPrice, getTotalItems } =
     useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const isFloating = placement === 'floating';
+  const isHeader = placement === 'header';
 
-  if (items.length === 0 && !isOpen) {
+  if (isFloating && items.length === 0 && !isOpen) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
+    <div className={isFloating ? 'fixed bottom-6 right-6 z-40' : 'relative z-40'}>
       {/* Cart Floating Button */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-orange text-dark-bg rounded-full flex items-center justify-center shadow-premium hover:bg-orange-light transition-all"
+        className={
+          isFloating
+            ? 'w-14 h-14 bg-orange text-dark-bg rounded-full flex items-center justify-center shadow-premium hover:bg-orange-light transition-all'
+            : 'relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-dark-border bg-dark-card text-white transition hover:border-orange hover:text-orange'
+        }
+        aria-label={`Open cart with ${getTotalItems()} items`}
+        title={`Open cart with ${getTotalItems()} items`}
       >
         <svg
-          className="w-6 h-6"
+          className={isHeader ? 'h-5 w-5' : 'w-6 h-6'}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -51,7 +63,11 @@ export const ShoppingCartWidget: React.FC = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
-          className="absolute bottom-20 right-0 w-80 bg-dark-card border border-dark-border rounded-xl shadow-premium p-4 max-h-96 overflow-y-auto"
+          className={
+            isFloating
+              ? 'absolute bottom-20 right-0 w-80 bg-dark-card border border-dark-border rounded-xl shadow-premium p-4 max-h-96 overflow-y-auto'
+              : 'absolute top-12 right-0 w-80 bg-dark-card border border-dark-border rounded-xl shadow-premium p-4 max-h-96 overflow-y-auto'
+          }
         >
           <h3 className="text-lg font-bold text-white mb-4">Shopping Cart</h3>
 

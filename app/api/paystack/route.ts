@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { calculateCartTotal } from '@/lib/utils';
+import { saveOrder } from '@/lib/order-store';
+import { checkRateLimit, getRequestClientId } from '@/lib/rate-limit';
 
 interface PayStackRequest {
   email: string;
@@ -13,6 +16,12 @@ interface PayStackRequest {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const clientId = getRequestClientId(request.headers);
+    const rate = checkRateLimit(`paystack-init:${clientId}`, 20, 60_000);
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
     const body: PayStackRequest = await request.json();
     const callbackUrl =
       process.env.PAYSTACK_CALLBACK_URL ||
@@ -26,20 +35,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Compute server-side total from metadata items (in Rands)
+    const items = body.metadata?.items || [];
+    const serverTotal = calculateCartTotal(items);
+    const serverAmountKobo = Math.round(serverTotal * 100);
+
+    // Validate that the requested amount matches server-side total.
+    if (body.amount !== serverAmountKobo) {
+      console.warn('Client amount mismatch', { client: body.amount, server: serverAmountKobo });
+      return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+    }
+
     // If no secret exists, use local mock mode and skip external API call.
     if (!process.env.PAYSTACK_SECRET_KEY) {
       const reference = `test_ref_${Date.now()}`;
-      try {
-        const { saveOrder } = await import('@/lib/orders');
-        saveOrder({
-          reference,
-          customer: { email: body.email, phone: body.phone },
-          items: body.metadata?.items || [],
-          total: body.amount / 100,
-        });
-      } catch (err) {
-        console.error('Failed saving test paystack order:', err);
-      }
+      await saveOrder({
+        reference,
+        customer: { email: body.email, phone: body.phone },
+        items,
+        total: serverTotal,
+      });
 
       return NextResponse.json({
         status: true,
@@ -70,17 +85,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const data = await paystackResponse.json();
 
     if (data.status) {
-      try {
-        const { saveOrder } = await import('@/lib/orders');
-        saveOrder({
-          reference: data.data.reference,
-          customer: { email: body.email, phone: body.phone },
-          items: body.metadata?.items || [],
-          total: body.amount / 100,
-        });
-      } catch (err) {
-        console.error('Failed saving paystack order:', err);
-      }
+      await saveOrder({
+        reference: data.data.reference,
+        customer: { email: body.email, phone: body.phone },
+        items,
+        total: serverTotal,
+      });
 
       return NextResponse.json({
         status: true,

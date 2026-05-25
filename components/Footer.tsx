@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
   const quickLinks = [
     { label: 'Home', href: '/' },
     { label: 'Services', href: '/#services' },
-    { label: 'Pricing', href: '/#pricing' },
+    { label: 'Our Special', href: '/#special' },
     { label: 'Contact', href: '/contact' },
   ];
 
@@ -122,10 +122,20 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-400 text-sm text-center md:text-left">
-            &copy; {currentYear} Armani Esso. All rights reserved. Premium
-            Printing & Branding Solutions.
-          </p>
+          <div className="text-gray-400 text-sm text-center md:text-left">
+            <p>&copy; {currentYear} Armani Esso. All rights reserved. Premium Printing & Branding Solutions.</p>
+            <p className="mt-2 text-xs text-gray-500">
+              Proudly developed by{' '}
+              <Link
+                href="https://www.alliedimpact.co.za"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-navy-light hover:text-navy transition-colors font-semibold"
+              >
+                Allied iMpact
+              </Link>
+            </p>
+          </div>
 
           <div className="flex gap-6">
             <Link

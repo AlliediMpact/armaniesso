@@ -6,17 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:orders": "node scripts/migrate-orders-to-firestore.js"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.0",
     "classnames": "^2.3.2",
+    "firebase": "^12.13.0",
+    "firebase-admin": "^13.10.0",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.292.0",
     "next": "^14.0.0",
     "nodemailer": "^8.0.8",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.8.9",

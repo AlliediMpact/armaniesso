@@ -12,7 +12,7 @@ import { formatZar } from '@/lib/utils';
 export const StoreProductDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const productId = params.id as string;
+  const productId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const { addToCart } = useCart();
 
   const product = products.find((p) => p.id === productId);

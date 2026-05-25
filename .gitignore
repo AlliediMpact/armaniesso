@@ -34,3 +34,33 @@ yarn-error.log*
 
 # OS
 Thumbs.db
+
+# Secrets & Credentials
+secrets/
+*.json
+!package.json
+!tsconfig.json
+!tailwind.config.js
+!next.config.js
+!firebase.json
+
+# Local data files
+data/orders.json
+data/webhook-events.json
+
+# Environment & Config
+.vercelignore
+.env.*.local
+.firebaserc
+
+# Build outputs
+dist/
+.turbo/
+
+# Logs
+*.log
+logs/
+
+# Cache
+.eslintcache
+.prettierignore
