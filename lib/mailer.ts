@@ -133,7 +133,7 @@ export async function sendPaymentReceivedEmail(input: PaidEmailInput) {
 // NEW EMAIL FUNCTIONS (Template-based)
 // ============================================================================
 
-async function sendEmail(to: string, subject: string, text: string) {
+export async function sendEmail(to: string, subject: string, text: string) {
   const transporter = getTransporter();
   if (!transporter) {
     console.warn('SMTP not configured; email skipped.', { to, subject });

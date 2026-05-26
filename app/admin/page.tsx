@@ -6,6 +6,11 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { ShieldCheck, ShieldOff, Users } from 'lucide-react';
+import AdminAnalytics from '@/components/AdminAnalytics';
+import AdminFulfillmentUI from '@/components/AdminFulfillmentUI';
+import LowStockAlerts from '@/components/LowStockAlerts';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Toast } from '@/components/ui/Toast';
 
 type Order = {
   orderId: string;
@@ -43,6 +48,11 @@ export default function AdminDashboardPage() {
   const [showUserManagement, setShowUserManagement] = useState(false);
   const [promotingUid, setPromotingUid] = useState<string | null>(null);
   const [demotingUid, setDemotingUid] = useState<string | null>(null);
+  const [userConfirm, setUserConfirm] = useState<{ uid: string; action: 'promote' | 'demote'; email?: string } | null>(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
+  const [toastVisible, setToastVisible] = useState(false);
+  const confirmUser = userConfirm;
 
   const fetchUsers = async () => {
     if (!user || !isAdmin) return;
@@ -84,10 +94,17 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Failed to promote user');
       await fetchUsers();
+      setToastMessage('✓ User promoted to admin');
+      setToastType('success');
+      setToastVisible(true);
     } catch (err: any) {
       setUserError(err?.message || 'Failed to promote user');
+      setToastMessage(err?.message || 'Failed to promote user');
+      setToastType('error');
+      setToastVisible(true);
     } finally {
       setPromotingUid(null);
+      setUserConfirm(null);
     }
   };
 
@@ -110,10 +127,17 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Failed to demote user');
       await fetchUsers();
+      setToastMessage('✓ User demoted from admin');
+      setToastType('success');
+      setToastVisible(true);
     } catch (err: any) {
       setUserError(err?.message || 'Failed to demote user');
+      setToastMessage(err?.message || 'Failed to demote user');
+      setToastType('error');
+      setToastVisible(true);
     } finally {
       setDemotingUid(null);
+      setUserConfirm(null);
     }
   };
 
@@ -266,6 +290,8 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        <AdminAnalytics />
+
         {/* User Management Section */}
         <div className="bg-dark-card border border-dark-border rounded-xl overflow-hidden mb-8">
           <div className="px-5 py-4 border-b border-dark-border flex items-center justify-between cursor-pointer hover:bg-dark-bg/50" onClick={() => { setShowUserManagement(!showUserManagement); if (!showUserManagement && users.length === 0) fetchUsers(); }}>
@@ -326,7 +352,7 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center gap-2">
                                 {isAdmin ? (
                                   <button
-                                    onClick={() => demoteUser(u.uid)}
+                                    onClick={() => setUserConfirm({ uid: u.uid, action: 'demote', email: u.email })}
                                     disabled={demotingUid === u.uid || user.uid === u.uid}
                                     className="text-xs px-3 py-1 rounded bg-red-600/80 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
@@ -334,7 +360,7 @@ export default function AdminDashboardPage() {
                                   </button>
                                 ) : (
                                   <button
-                                    onClick={() => promoteUser(u.uid)}
+                                    onClick={() => setUserConfirm({ uid: u.uid, action: 'promote', email: u.email })}
                                     disabled={promotingUid === u.uid}
                                     className="text-xs px-3 py-1 rounded bg-orange text-dark-bg font-semibold hover:bg-orange/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
@@ -418,6 +444,54 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </div>
+
+        {/* Low Stock Alerts */}
+        <div className="mt-8">
+          <LowStockAlerts />
+        </div>
+
+        {/* Order Fulfillment & Refunds */}
+        <div className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-white">Order Fulfillment & Refunds</h2>
+            <p className="text-gray-400 text-sm mt-1">Manage order fulfillment, process refunds, and look up customer orders</p>
+          </div>
+          <AdminFulfillmentUI />
+        </div>
+
+        {/* User Action Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={!!confirmUser}
+          title={confirmUser?.action === 'promote' ? 'Promote User to Admin' : 'Remove Admin Access'}
+          message={
+            confirmUser
+              ? confirmUser.action === 'promote'
+                ? `Grant admin privileges to ${confirmUser.email || 'this user'}?`
+                : `Remove admin privileges from ${confirmUser.email || 'this user'}?`
+              : ''
+          }
+          confirmText={confirmUser?.action === 'promote' ? 'Promote' : 'Remove'}
+          cancelText="Cancel"
+          isDangerous={confirmUser?.action === 'demote'}
+          isLoading={promotingUid === confirmUser?.uid || demotingUid === confirmUser?.uid}
+          onConfirm={() => {
+            if (!confirmUser) return;
+            if (confirmUser.action === 'promote') {
+              promoteUser(confirmUser.uid);
+            } else {
+              demoteUser(confirmUser.uid);
+            }
+          }}
+          onCancel={() => setUserConfirm(null)}
+        />
+
+        {/* Toast Notification */}
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          isVisible={toastVisible}
+          onClose={() => setToastVisible(false)}
+        />
       </div>
     </div>
   );

@@ -6,7 +6,11 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin, CreditCard } from 'lucide-react';
+import { useCart } from '@/lib/cart-context';
+import { downloadInvoiceAsPDF, getTrackingURL } from '@/lib/invoice-utils';
+import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin, CreditCard, RotateCcw, Download, ExternalLink } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Toast } from '@/components/ui/Toast';
 
 type OrderItem = {
   id: string;
@@ -43,9 +47,15 @@ type Order = {
 export default function AccountOrderDetailPage({ params }: { params: { orderId: string } }) {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const { addToCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState('');
   const [fetching, setFetching] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [reorderConfirm, setReorderConfirm] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
+  const [toastVisible, setToastVisible] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -82,6 +92,88 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
       active = false;
     };
   }, [user, params.orderId, loading, router]);
+
+  const handleReorder = async () => {
+    if (!order || !user) return;
+
+    try {
+      setReordering(true);
+      const token = await user.getIdToken().catch(() => '');
+
+      const res = await fetch(`/api/account/orders/${params.orderId}/reorder`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to reorder');
+
+      // Add items to cart
+      let itemCount = 0;
+      for (const item of data.items) {
+        addToCart(
+          {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            description: item.description || '',
+            category: item.category || 'displays' as const,
+            image: item.image || '',
+            printSize: item.printSize || '1m x 1m',
+          },
+          item.quantity
+        );
+        itemCount += item.quantity;
+      }
+
+      setToastMessage(`✓ Added ${itemCount} item(s) from order ${order.orderId} to your cart`);
+      setToastType('success');
+      setToastVisible(true);
+      setReorderConfirm(false);
+      setTimeout(() => {
+        router.push('/store/checkout');
+      }, 1500);
+    } catch (err: any) {
+      setToastMessage(`${err?.message || 'Failed to reorder'}`);
+      setToastType('error');
+      setToastVisible(true);
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const handleDownloadInvoice = () => {
+    if (!order) return;
+
+    const invoiceData = {
+      orderId: order.orderId,
+      orderDate: order.createdAt,
+      customer: {
+        name: order.customer.name,
+        email: order.customer.email,
+      },
+      items: order.items,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shipping: {
+        method: order.shipping.method,
+        cost: order.shipping.cost,
+      },
+      total: order.total,
+      paymentMethod: order.payment,
+      reference: order.reference,
+      status: order.status,
+    };
+
+    downloadInvoiceAsPDF(invoiceData);
+  };
+
+  const trackingURL = order?.shipping?.trackingNumber
+    ? getTrackingURL(order.shipping.carrier || '', order.shipping.trackingNumber)
+    : null;
+
 
   if (!user || loading) {
     return <div className="min-h-screen bg-gradient-dark pt-28 pb-20" />;
@@ -154,7 +246,7 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
             <ArrowLeft size={16} />
             Back to Dashboard
           </Link>
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4 mb-4">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Order {order.orderId}</h1>
               <p className="text-gray-400">
@@ -169,6 +261,25 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
               <StatusIcon size={16} />
               <span className="capitalize font-semibold">{order.status}</span>
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleDownloadInvoice}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-light text-dark font-semibold rounded-lg transition-colors"
+            >
+              <Download size={16} />
+              Download Invoice
+            </button>
+            <button
+              onClick={() => setReorderConfirm(true)}
+              disabled={reordering}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-dark-card border border-orange text-orange hover:bg-orange/10 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RotateCcw size={16} />
+              {reordering ? 'Processing...' : 'Reorder Items'}
+            </button>
           </div>
         </div>
 
@@ -226,9 +337,22 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
                 <span className="text-gray-500">Method:</span> <span className="capitalize">{order.shipping.method}</span>
               </p>
               {order.shipping.trackingNumber && (
-                <p className="text-sm text-gray-300 mb-2">
-                  <span className="text-gray-500">Tracking:</span> {order.shipping.trackingNumber}
-                </p>
+                <>
+                  <p className="text-sm text-gray-300 mb-2">
+                    <span className="text-gray-500">Tracking:</span> {order.shipping.trackingNumber}
+                  </p>
+                  {trackingURL && trackingURL !== 'N/A' && (
+                    <a
+                      href={trackingURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-orange hover:text-orange-light font-semibold"
+                    >
+                      Track Package
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </>
               )}
               {order.shipping.carrier && (
                 <p className="text-sm text-gray-300">
@@ -281,6 +405,24 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
           </div>
         )}
       </div>
-    </div>
+
+      <ConfirmDialog
+        isOpen={reorderConfirm}
+        title="Reorder Items"
+        message="Add all items from this order to your cart?"
+        confirmText="Reorder"
+        cancelText="Cancel"
+        isLoading={reordering}
+        onConfirm={handleReorder}
+        onCancel={() => setReorderConfirm(false)}
+      />
+
+      <Toast
+        message={toastMessage}
+        type={toastType}
+        isVisible={toastVisible}
+        onClose={() => setToastVisible(false)}
+      />
+      </div>
   );
 }

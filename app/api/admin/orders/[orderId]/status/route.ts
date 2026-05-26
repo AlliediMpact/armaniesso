@@ -28,7 +28,15 @@ function isAdminToken(decoded: { email?: string; claims?: Record<string, unknown
 }
 
 function isValidStatus(status: string): status is OrderStatus {
-  return status === 'pending' || status === 'paid' || status === 'cancelled';
+  return (
+    status === 'pending' ||
+    status === 'paid' ||
+    status === 'processing' ||
+    status === 'shipped' ||
+    status === 'delivered' ||
+    status === 'cancelled' ||
+    status === 'refunded'
+  );
 }
 
 export async function PATCH(
