@@ -53,6 +53,8 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
   const [fetching, setFetching] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [reorderConfirm, setReorderConfirm] = useState(false);
+  const [reorderPreview, setReorderPreview] = useState<any[] | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
   const [toastVisible, setToastVisible] = useState(false);
@@ -94,47 +96,89 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
   }, [user, params.orderId, loading, router]);
 
   const handleReorder = async () => {
+    // This function is now replaced by a confirm flow. Keep for backwards compatibility.
+    return;
+  };
+
+  const fetchReorderPreview = async () => {
     if (!order || !user) return;
-
+    setPreviewLoading(true);
+    setReorderPreview(null);
+    setReorderConfirm(false);
     try {
-      setReordering(true);
       const token = await user.getIdToken().catch(() => '');
-
       const res = await fetch(`/api/account/orders/${params.orderId}/reorder`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to reorder');
+      if (!res.ok) throw new Error(data?.error || 'Failed to get reorder preview');
+      setReorderPreview(data.items || []);
+      setReorderConfirm(true);
+    } catch (err: any) {
+      setToastMessage(`${err?.message || 'Failed to prepare reorder'}`);
+      setToastType('error');
+      setToastVisible(true);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
-      // Add items to cart
+  const proceedReorder = async () => {
+    if (!reorderPreview || !user) return;
+    try {
+      setReordering(true);
       let itemCount = 0;
-      for (const item of data.items) {
+      const unavailable: string[] = [];
+      const priceChanges: string[] = [];
+
+      for (const item of reorderPreview) {
+        if (!item.available) {
+          unavailable.push(item.name || item.id);
+          continue;
+        }
+
+        if (item.priceChanged) {
+          priceChanges.push(item.name || item.id);
+        }
+
+        const qty = item.requestedQty || 1;
         addToCart(
           {
             id: item.id,
             name: item.name,
-            price: item.price,
+            price: item.currentPrice,
             description: item.description || '',
-            category: item.category || 'displays' as const,
+            category: item.category || ('displays' as const),
             image: item.image || '',
             printSize: item.printSize || '1m x 1m',
+            sku: item.sku || undefined,
           },
-          item.quantity
+          qty
         );
-        itemCount += item.quantity;
+        itemCount += qty;
       }
 
-      setToastMessage(`✓ Added ${itemCount} item(s) from order ${order.orderId} to your cart`);
+      let message = `✓ Added ${itemCount} item(s) to your cart.`;
+      if (unavailable.length > 0) {
+        message += ` ${unavailable.length} item(s) unavailable and were skipped.`;
+      }
+      if (priceChanges.length > 0) {
+        message += ` ${priceChanges.length} item(s) had price changes.`;
+      }
+
+      setToastMessage(message);
       setToastType('success');
       setToastVisible(true);
       setReorderConfirm(false);
+      setReorderPreview(null);
+
       setTimeout(() => {
         router.push('/store/checkout');
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
       setToastMessage(`${err?.message || 'Failed to reorder'}`);
       setToastType('error');
@@ -273,12 +317,12 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
               Download Invoice
             </button>
             <button
-              onClick={() => setReorderConfirm(true)}
-              disabled={reordering}
+              onClick={fetchReorderPreview}
+              disabled={reordering || previewLoading}
               className="inline-flex items-center gap-2 px-4 py-2 bg-dark-card border border-orange text-orange hover:bg-orange/10 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RotateCcw size={16} />
-              {reordering ? 'Processing...' : 'Reorder Items'}
+              {previewLoading ? 'Checking...' : reordering ? 'Processing...' : 'Reorder Items'}
             </button>
           </div>
         </div>
@@ -406,16 +450,32 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
         )}
       </div>
 
-      <ConfirmDialog
-        isOpen={reorderConfirm}
-        title="Reorder Items"
-        message="Add all items from this order to your cart?"
-        confirmText="Reorder"
-        cancelText="Cancel"
-        isLoading={reordering}
-        onConfirm={handleReorder}
-        onCancel={() => setReorderConfirm(false)}
-      />
+      {/* Reorder confirmation: summarize availability and price changes */}
+      {
+        (() => {
+          const items = reorderPreview || [];
+          const total = items.length;
+          const availableCount = items.filter((i: any) => i.available).length;
+          const unavailableCount = total - availableCount;
+          const priceChangedCount = items.filter((i: any) => i.priceChanged).length;
+          const message = items.length === 0
+            ? 'Add all items from this order to your cart?'
+            : `This will add ${availableCount} item(s) to your cart. ${unavailableCount} unavailable. ${priceChangedCount} item(s) had price changes.`;
+
+          return (
+            <ConfirmDialog
+              isOpen={reorderConfirm}
+              title="Confirm Reorder"
+              message={message}
+              confirmText="Add to cart"
+              cancelText="Cancel"
+              isLoading={reordering}
+              onConfirm={proceedReorder}
+              onCancel={() => { setReorderConfirm(false); setReorderPreview(null); }}
+            />
+          );
+        })()
+      }
 
       <Toast
         message={toastMessage}

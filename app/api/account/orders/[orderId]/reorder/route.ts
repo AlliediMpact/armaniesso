@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { initializeApp as initializeServerApp } from 'firebase-admin/app';
-import { getFirestore as getServerFirestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
+import { products } from '@/lib/products';
+import { checkInventoryAvailability } from '@/lib/inventory-service';
 
 const clientFirebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -84,7 +82,7 @@ export async function POST(
       );
     }
 
-    // Validate items exist and are available
+    // Validate items exist
     if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
       return NextResponse.json(
         { error: 'Order has no items to reorder' },
@@ -92,23 +90,49 @@ export async function POST(
       );
     }
 
-    // Return items that can be re-added to cart
-    // Client will handle adding to cart and redirecting
-    const reorderItems = order.items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      description: item.description,
-      category: item.category,
-      image: item.image,
-      printSize: item.printSize || '1m x 1m',
-    }));
+    // Build enriched reorder preview per item: rehydrate current product data and check inventory
+    const reorderItems = await Promise.all(
+      order.items.map(async (item: any) => {
+        const product = products.find((p) => p.id === item.id);
+        const currentPrice = product ? product.price : item.price;
+        const image = product?.image || item.image || '';
+        const category = product?.category || item.category || 'displays';
+        const printSize = product?.printSize || item.printSize || '1m x 1m';
+        const variantId = item.variantId || (item.variantId === undefined ? undefined : item.variantId);
+
+        // Inventory check (will return available=true if inventory system unavailable)
+        let availability = { available: true, availableQuantity: Infinity } as any;
+        try {
+          const inv = await checkInventoryAvailability(item.id, item.quantity, variantId);
+          availability = inv;
+        } catch (err) {
+          // fail-open: mark available to avoid blocking reorder when inventory service is down
+          availability = { available: true, availableQuantity: Infinity };
+        }
+
+        return {
+          id: item.id,
+          name: item.name || product?.name || 'Product',
+          requestedQty: item.quantity || 1,
+          availableQty: availability.availableQuantity,
+          available: !!availability.available,
+          originalPrice: item.price,
+          currentPrice,
+          priceChanged: currentPrice !== item.price,
+          image,
+          category,
+          printSize,
+          variantId: variantId || null,
+          sku: item.sku || product?.sku || null,
+          description: item.description || product?.description || '',
+        };
+      })
+    );
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Items ready for reorder',
+        message: 'Items ready for reorder (preview)',
         items: reorderItems,
         originalOrderId: orderId,
       },
