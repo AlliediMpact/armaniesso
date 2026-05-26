@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
 import { downloadInvoiceAsPDF, getTrackingURL } from '@/lib/invoice-utils';
+import useOrderRealtime from '@/lib/use-order-realtime';
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin, CreditCard, RotateCcw, Download, ExternalLink } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Toast } from '@/components/ui/Toast';
@@ -59,41 +60,22 @@ export default function AccountOrderDetailPage({ params }: { params: { orderId: 
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
   const [toastVisible, setToastVisible] = useState(false);
 
+  // Redirect unauthenticated users to /auth
   useEffect(() => {
     if (!loading && !user) {
       router.push('/auth');
       return;
     }
+  }, [loading, user, router]);
 
-    if (!user) return;
+  // Use polling hook to keep order up-to-date for the customer
+  const { order: realtimeOrder, fetching: realtimeFetching, error: realtimeError } = useOrderRealtime(params.orderId);
 
-    let active = true;
-    const run = async () => {
-      try {
-        setError('');
-        setFetching(true);
-        const token = await user.getIdToken().catch(() => '');
-        const res = await fetch(`/api/account/orders/${params.orderId}`, {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          cache: 'no-store',
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || 'Failed loading order');
-        if (active) setOrder(data.order || null);
-      } catch (err: any) {
-        if (active) setError(err?.message || 'Failed loading order');
-      } finally {
-        if (active) setFetching(false);
-      }
-    };
-
-    run();
-    return () => {
-      active = false;
-    };
-  }, [user, params.orderId, loading, router]);
+  useEffect(() => {
+    if (realtimeOrder) setOrder(realtimeOrder);
+    if (realtimeError) setError(realtimeError);
+    setFetching(realtimeFetching);
+  }, [realtimeOrder, realtimeFetching, realtimeError]);
 
   const handleReorder = async () => {
     // This function is now replaced by a confirm flow. Keep for backwards compatibility.

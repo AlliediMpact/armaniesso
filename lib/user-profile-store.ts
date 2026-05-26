@@ -19,8 +19,15 @@ export type UserProfile = {
 };
 
 function firestoreEnabled(): boolean {
-  const flag = (process.env.FIREBASE_USE_FIRESTORE_ORDERS || '').toLowerCase();
-  if (flag === 'false' || flag === '0' || flag === 'off') return false;
+  // Prefer a dedicated flag for user profiles, fall back to orders flag for compatibility
+  const userFlag = (process.env.FIREBASE_USE_FIRESTORE_USERS || '').toLowerCase();
+  if (userFlag) {
+    if (userFlag === 'false' || userFlag === '0' || userFlag === 'off') return false;
+    return true;
+  }
+
+  const ordersFlag = (process.env.FIREBASE_USE_FIRESTORE_ORDERS || '').toLowerCase();
+  if (ordersFlag === 'false' || ordersFlag === '0' || ordersFlag === 'off') return false;
   return true;
 }
 

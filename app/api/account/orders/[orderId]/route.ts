@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOrderById, readOrders, saveOrder } from '@/lib/order-store';
+import {
+  sendOrderProcessingEmail,
+  sendOrderShippedEmail,
+  sendOrderDeliveredEmail,
+  sendOrderCancelledEmail,
+  sendRefundIssuedEmail,
+} from '@/lib/mailer';
 import { verifyBearerToken } from '@/lib/firebase-admin';
 import { addPaymentEvent, addStatusHistory } from '@/lib/order-types-enhanced';
 
@@ -118,6 +125,25 @@ export async function PATCH(
     orders[orderIndex] = order;
     await saveOrder(order);
 
+    // Send transactional email based on status change
+    if (body.status) {
+      try {
+        if (body.status === 'processing') {
+          await sendOrderProcessingEmail(order as any);
+        } else if (body.status === 'shipped') {
+          await sendOrderShippedEmail(order as any);
+        } else if (body.status === 'delivered') {
+          await sendOrderDeliveredEmail(order as any);
+        } else if (body.status === 'cancelled') {
+          await sendOrderCancelledEmail(order as any);
+        } else if (body.status === 'refunded') {
+          await sendRefundIssuedEmail(order as any);
+        }
+      } catch (err) {
+        console.error('Failed sending status-change email:', err);
+      }
+    }
+
     return withNoStore(NextResponse.json(order));
   } catch (error) {
     console.error('Order update error:', error);
@@ -179,6 +205,17 @@ export async function DELETE(
     order = addStatusHistory(order as any, newStatus as any, admin, notes);
     orders[orderIndex] = order;
     await saveOrder(order);
+
+    // Send cancellation/refund email
+    try {
+      if (newStatus === 'refunded') {
+        await sendRefundIssuedEmail(order as any);
+      } else {
+        await sendOrderCancelledEmail(order as any);
+      }
+    } catch (err) {
+      console.error('Failed sending cancel/refund email:', err);
+    }
 
     return withNoStore(NextResponse.json({
       message: `Order ${newStatus}`,

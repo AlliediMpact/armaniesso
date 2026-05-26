@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateCartTotal } from '@/lib/utils';
 import { saveOrder } from '@/lib/order-store';
+import { sendOrderConfirmationEmail } from '@/lib/mailer';
 import { checkRateLimit, getRequestClientId } from '@/lib/rate-limit';
 
 interface PayStackRequest {
@@ -49,12 +50,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // If no secret exists, use local mock mode and skip external API call.
     if (!process.env.PAYSTACK_SECRET_KEY) {
       const reference = `test_ref_${Date.now()}`;
-      await saveOrder({
+      const newOrder = await saveOrder({
         reference,
         customer: { email: body.email, phone: body.phone },
         items,
         total: serverTotal,
       });
+
+      try {
+        if (newOrder.customer?.email) {
+          await sendOrderConfirmationEmail(newOrder as any);
+        }
+      } catch (err) {
+        console.error('Failed sending order confirmation email (mock):', err);
+      }
 
       return NextResponse.json({
         status: true,
@@ -85,12 +94,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const data = await paystackResponse.json();
 
     if (data.status) {
-      await saveOrder({
+      const newOrder = await saveOrder({
         reference: data.data.reference,
         customer: { email: body.email, phone: body.phone },
         items,
         total: serverTotal,
       });
+
+      try {
+        if (newOrder.customer?.email) {
+          await sendOrderConfirmationEmail(newOrder as any);
+        }
+      } catch (err) {
+        console.error('Failed sending order confirmation email:', err);
+      }
 
       return NextResponse.json({
         status: true,
