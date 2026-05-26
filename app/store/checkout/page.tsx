@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { StoreCheckoutPage } from '@/components/store/StoreCheckoutPage';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Checkout - Armani Esso Store',
   description: 'Complete your purchase securely.',
