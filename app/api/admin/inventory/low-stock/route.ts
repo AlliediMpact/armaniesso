@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/admin/inventory/low-stock
  * Get products with low stock (below threshold)

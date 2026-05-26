@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyBearerToken } from '@/lib/firebase-admin';
 import { getInventorySummary, getLowStockItems } from '@/lib/inventory-service';
 
+export const dynamic = 'force-dynamic';
+
 function withNoStore(response: NextResponse) {
   response.headers.set('Cache-Control', 'no-store');
   return response;

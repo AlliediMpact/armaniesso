@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 // Returns revenue summary for a date range (start/end ISO)
 export async function GET(req: NextRequest) {
   try {

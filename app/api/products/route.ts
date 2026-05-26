@@ -3,6 +3,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getFirebaseAdminApp } from '@/lib/firebase-admin';
 import { checkRateLimit, getRequestClientId } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/products
  * List all products (public endpoint)

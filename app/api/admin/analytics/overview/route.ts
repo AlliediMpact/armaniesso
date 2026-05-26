@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 function isAdminClaims(decoded: any) {
   if (!decoded) return false;
   const claims = decoded.claims || {};
