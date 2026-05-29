@@ -50,10 +50,10 @@ export const Pricing: React.FC = () => {
       id="special"
       className="py-20 bg-dark-bg border-t border-dark-border relative overflow-hidden"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,140,0,0.12),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.08),transparent_28%)]" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange/40 to-transparent" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(255,140,0,0.12),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.08),transparent_28%)]" />
+      <div className="absolute inset-x-0 top-0 h-px pointer-events-none bg-gradient-to-r from-transparent via-orange/40 to-transparent" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -62,7 +62,7 @@ export const Pricing: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="relative text-center mb-14"
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-navy/30 bg-navy/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-navy-light">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-navy/30 bg-navy/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-navy-light">
             <Sparkles size={14} />
             Our Special
           </div>
@@ -147,12 +147,12 @@ export const Pricing: React.FC = () => {
                     loading="lazy"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-bg via-transparent to-transparent opacity-80" />
-                  <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-navy/25 bg-navy/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-navy-light">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-dark-bg via-transparent to-transparent opacity-80" />
+                  <div className="absolute left-4 top-4 pointer-events-none inline-flex items-center gap-2 rounded-full border border-navy/25 bg-navy/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-navy-light">
                     <Star size={12} />
                     Trending
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-gray-300">
+                  <div className="absolute bottom-4 left-4 right-4 pointer-events-none flex items-center justify-between text-xs text-gray-300">
                     <span className="rounded-full bg-dark-bg/70 px-3 py-1 backdrop-blur-sm">{product.printSize}</span>
                     <span className="rounded-full bg-orange/90 px-3 py-1 font-semibold text-dark-bg">{formatZar(product.price)}</span>
                   </div>
@@ -184,7 +184,7 @@ export const Pricing: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="relative z-20 grid gap-3 sm:grid-cols-2">
                     <button
                       onClick={(e) => {
                         try {

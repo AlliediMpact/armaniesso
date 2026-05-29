@@ -12,6 +12,7 @@ export const Footer: React.FC = () => {
     { label: 'Services', href: '/#services' },
     { label: 'Our Special', href: '/#special' },
     { label: 'Contact', href: '/contact' },
+    { label: 'Store', href: '/store' },
   ];
 
   const contactInfo = [
@@ -149,6 +150,16 @@ export const Footer: React.FC = () => {
             >
               <MessageCircle size={24} />
             </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="text-sm text-gray-400"> 
+            <Link href="/terms" className="mr-4 hover:text-orange">Terms &amp; Conditions</Link>
+            <Link href="/privacy-policy" className="mr-4 hover:text-orange">Privacy Policy</Link>
+            <Link href="/refund-policy" className="mr-4 hover:text-orange">Refund Policy</Link>
+            <Link href="/shipping-policy" className="mr-4 hover:text-orange">Shipping Policy</Link>
+            <Link href="/cookies" className="hover:text-orange">Cookie Policy</Link>
           </div>
         </div>
       </div>
