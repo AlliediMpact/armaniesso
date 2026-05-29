@@ -24,7 +24,7 @@ export const Preloader: React.FC = () => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-dark"
+      className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-gradient-dark"
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >

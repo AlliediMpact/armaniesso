@@ -128,7 +128,7 @@ export const HeroCanvasBackground: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 opacity-60"
+      className="pointer-events-none absolute inset-0 opacity-60"
       style={{ filter: 'blur(40px)' }}
     />
   );
